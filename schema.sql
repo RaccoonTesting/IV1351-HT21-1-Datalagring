@@ -1,6 +1,18 @@
 
+ROP TYPE IF EXISTS public.enum_person_role CASCADE;
 CREATE TYPE public.enum_person_role AS
 ENUM ('student','instructor');
+
+DROP FUNCTION IF EXISTS get_active_rental_count;
+CREATE FUNCTION get_active_rental_count(user_id integer) RETURNS TABLE(current_rental_count integer) AS
+$$
+SELECT COUNT(PERSON_ID) as current_rental_count
+FROM RENTALS
+WHERE PERSON_ID = user_id
+	AND (END_DATE IS NULL OR END_DATE > CURRENT_DATE)
+GROUP BY PERSON_ID
+$$ LANGUAGE SQL;
+
 
 CREATE TABLE public.persons (
 	id serial NOT NULL,
@@ -34,6 +46,7 @@ CREATE TABLE public.families (
 	CONSTRAINT pk_families PRIMARY KEY (id)
 );
 
+DROP TYPE IF EXISTS public.enum_instrument_skill CASCADE;
 CREATE TYPE public.enum_instrument_skill AS
 ENUM ('beginner','intermediate','advanced');
 COMMENT ON TYPE public.enum_instrument_skill IS E'Instructors are always ''advanced''';
@@ -45,6 +58,7 @@ CREATE TABLE public.skills (
 	CONSTRAINT pk_skills PRIMARY KEY (person_id,instrument)
 );
 
+DROP TYPE IF EXISTS public.enum_instrument_types CASCADE;
 CREATE TYPE public.enum_instrument_types AS
 ENUM ('string','woodwind','brass','percussion','keyboard');
 
@@ -64,12 +78,13 @@ CREATE TABLE public.rentals (
 	start_date date NOT NULL,
 	end_date date NOT NULL,
 	instrument_id integer NOT NULL,
-	CONSTRAINT ck_rentals_rental_duration_limit CHECK ((rentals.end_date - rentals.start_date) <= 12),
+	CONSTRAINT ck_rentals_rental_duration_limit CHECK (extract(month from age(rentals.end_date, rentals.start_date)) <= 12),
 	CONSTRAINT pk_rentals PRIMARY KEY (person_id,instrument_id)
 );
 
 COMMENT ON CONSTRAINT ck_rentals_rental_duration_limit ON public.rentals  IS E'The rental duration must not exceed 12 months';
 
+DROP TYPE IF EXISTS public.enum_event_type CASCADE;
 CREATE TYPE public.enum_event_type AS
 ENUM ('individual','ensemble','group');
 
