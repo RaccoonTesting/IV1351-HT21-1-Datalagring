@@ -1,5 +1,4 @@
-
-ROP TYPE IF EXISTS public.enum_person_role CASCADE;
+DROP TYPE IF EXISTS public.enum_person_role CASCADE;
 CREATE TYPE public.enum_person_role AS
 ENUM ('student','instructor');
 
@@ -151,3 +150,5 @@ ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE public.event_attendance ADD CONSTRAINT fk_event_attendance_event_id FOREIGN KEY (event_id)
 REFERENCES public.events (id) MATCH SIMPLE
 ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+
