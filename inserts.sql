@@ -765,3 +765,11 @@ INSERT INTO rentals (person_id, start_date, end_date, instrument_id) VALUES
 (14, '2022-01-09', '2022-02-09', 4),
 (14, '2022-01-01', '2022-07-01', 5),
 (14, '2021-01-01', '2021-02-01', 6);
+
+CREATE VIEW booked AS
+SELECT
+count(*) as booked, event_attendance.event_id, events.max_participants
+FROM event_attendance
+INNER JOIN events on event_attendance.event_id = events.id
+GROUP BY (event_attendance.event_id, events.max_participants);
+
