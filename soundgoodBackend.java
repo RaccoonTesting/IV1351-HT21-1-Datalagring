@@ -19,7 +19,7 @@ public class soundgoodBackend {
                     if (argsList[1].isEmpty()) {
                         System.out.println("Invalid command: list <instrument>");
                         return;
-                    }
+                  }
                     list(argsList[1]);
                     break;
                 case "rent":
@@ -42,6 +42,13 @@ public class soundgoodBackend {
         } catch (SQLException e) {
             System.out.println("Database error: " + e.getMessage());
         }
+
+        /*
+        try {
+            databaseDriver.get().getConnection().close();
+        } catch (SQLException e) {
+            System.out.println("Unable to close connection: " + e.getMessage());
+        }*/
     }
 
     private static void printRows(ResultSet rs) throws SQLException {
@@ -90,6 +97,10 @@ public class soundgoodBackend {
                 }
             }
             rs.close();
+            connection.commit();
+        } catch (SQLException e) {
+            connection.rollback();
+            throw new RuntimeException("Unable to check student's active rental count: " + e.getMessage());
         }
 
         // Add the rental to the database
@@ -106,6 +117,10 @@ public class soundgoodBackend {
 
             ps.setInt(3, Integer.parseInt(instrumentID));
             ps.executeUpdate();
+            connection.commit();
+        } catch (SQLException e) {
+            connection.rollback();
+            throw new RuntimeException("Unable to rent instrument: " + e.getMessage());
         }
     }
 
@@ -117,6 +132,10 @@ public class soundgoodBackend {
             ps.setInt(1, Integer.parseInt(personID));
             ps.setInt(2, Integer.parseInt(instrumentID));
             ps.executeUpdate();
+            connection.commit();
+        } catch (SQLException e) {
+            connection.rollback();
+            throw new RuntimeException("Unable to terminate rental: " + e.getMessage());
         }
     }
 }
